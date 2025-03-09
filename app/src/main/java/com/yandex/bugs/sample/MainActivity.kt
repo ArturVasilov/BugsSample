@@ -50,15 +50,15 @@ fun StartScreen(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TaskButton("Задание 1 – Таймер", Task1Activity::class.java)
-        TaskButton("Задание 2 – TODO",)
-        TaskButton("Задание 3 – TODO",)
-        TaskButton("Задание 4 – TODO",)
-        TaskButton("Задание 5 – DivKit",)
+        TaskButton("Задание 2 – Canvas", Task2Activity::class.java)
+        TaskButton("Задание 3 – TODO", Task3Activity::class.java)
+        TaskButton("Задание 4 – TODO", Task4Activity::class.java)
+        TaskButton("Задание 5 – DivKit", Task5Activity::class.java)
     }
 }
 
 @Composable
-fun TaskButton(text: String, activityClass: Class<out Activity>? = null) {
+fun TaskButton(text: String, activityClass: Class<out Activity>) {
     val context = LocalContext.current
     Button(
         onClick = {
