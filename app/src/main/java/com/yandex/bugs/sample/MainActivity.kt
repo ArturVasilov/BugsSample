@@ -49,7 +49,7 @@ fun StartScreen(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TaskButton("Задание 1 – TODO", Task1Activity::class.java)
+        TaskButton("Задание 1 – Таймер", Task1Activity::class.java)
         TaskButton("Задание 2 – TODO",)
         TaskButton("Задание 3 – TODO",)
         TaskButton("Задание 4 – TODO",)

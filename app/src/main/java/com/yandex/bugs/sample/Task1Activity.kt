@@ -1,50 +1,50 @@
 package com.yandex.bugs.sample
 
-import android.content.Context
 import android.os.Bundle
-import android.os.Handler
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.yandex.bugs.sample.ui.theme.BugsSampleTheme
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.ArrayList
 
+@OptIn(DelicateCoroutinesApi::class)
 class Task1Activity : ComponentActivity() {
-    // Ошибка 1: Сохранение контекста в статическом поле вызывает утечку памяти
-    companion object {
-        private lateinit var appContext: Context
-    }
 
-    private var counter = mutableStateOf(0) // Ошибка 2: Не используется remember
-    private val numbers = ArrayList<Int>() // Будет храниться список чисел
-    private lateinit var handler: Handler
+    private val resultsList = mutableStateListOf<String>()
+
+    private var currentTimeMillis = 0L
+
+    private var isRunning by mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        appContext = this // Инициализация утечки памяти
-
-        // Ошибка 3: Не освобождаются ресурсы
-        handler = Handler()
-
-        // Заполнение списка
-        for (i in 1..100) {
-            numbers.add(i)
-        }
 
         setContent {
             BugsSampleTheme {
@@ -52,26 +52,14 @@ class Task1Activity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    CounterScreen()
+                    TimerScreen()
                 }
             }
         }
     }
 
     @Composable
-    fun CounterScreen() {
-        val context = LocalContext.current
-        // Ошибка 4: Не использовать remember здесь приведет к потере state при рекомпозиции
-        var counter by remember { mutableStateOf(0) }
-        var inputText by remember { mutableStateOf("") }
-
-        // Ошибка 5: Это вызовется при каждой рекомпозиции, создав бесконечный цикл
-        LaunchedEffect(Unit) {
-            counter += 1
-        }
-
-        val coroutineScope = rememberCoroutineScope()
-
+    fun TimerScreen() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -79,93 +67,113 @@ class Task1Activity : ComponentActivity() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Счетчик: $counter",
-                fontSize = 24.sp,
-                // Ошибка 6: Модификатор padding внутри Text не работает так, как ожидается
-                modifier = Modifier.padding(100.dp)
+                text = "Таймер",
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 24.dp)
             )
-
-            TextField(
-                value = inputText,
-                onValueChange = { inputText = it },
-                label = { Text("Введите число") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Button(
-                onClick = {
-                    // Ошибка 7: Нет проверки на корректность ввода перед преобразованием
-                    val input = inputText.toInt()
-                    counter = input
-
-                    // Ошибка 8: Обращение к UI из фонового потока
-                    Thread {
-                        Thread.sleep(1000) // Имитация тяжелой работы
-                        // Это приведет к краху, так как обновляем UI не в главном потоке
-                        counter += 1
-                    }.start()
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Установить значение")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = {
-                    coroutineScope.launch {
-                        // Ошибка 9: Бесконечный цикл может привести к ANR
-                        for (i in 1..Int.MAX_VALUE) {
-                            delay(100)
-                            counter += 1
-                        }
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Начать увеличение")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Ошибка 10: Странные размеры, плохая иерархия
-            Box(
+            Text(
+                text = "Время: ${currentTimeMillis / 1000000}.${currentTimeMillis % 1000000} c",
+                style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier
-                    .fillMaxWidth(-0.5f) // Отрицательное значение
-                    .height(200.dp)
-                    .background(Color.Red)
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 24.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Список чисел, но с ошибкой в данных
-                LazyColumn {
-                    // Ошибка 11: Неправильная фильтрация, будет пустой список
-                    items(numbers.filter { it > 1000 }) { number ->
-                        Text(
-                            text = "Число: $number",
+                Button(
+                    onClick = {
+                        startTimer()
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+                ) {
+                    Text("Старт", style = MaterialTheme.typography.titleMedium)
+                }
+
+                Button(
+                    onClick = {
+                        stopTimer()
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336))
+                ) {
+                    Text("Стоп", style = MaterialTheme.typography.titleMedium)
+                }
+            }
+
+            Text(
+                text = "История результатов:",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .align(Alignment.Start)
+                    .padding(bottom = 8.dp)
+            )
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(8.dp)
+                ) {
+                    items(resultsList.size) { index ->
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(8.dp)
-                                .clickable {
-                                    // Ошибка 12: Потенциальный NullPointerException
-                                    val nullableString: String? = null
-                                    Toast.makeText(
-                                        context,
-                                        nullableString!!.length.toString(),
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                        )
+                                .padding(vertical = 4.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (index % 2 == 0)
+                                    MaterialTheme.colorScheme.surfaceVariant
+                                else
+                                    MaterialTheme.colorScheme.surface
+                            )
+                        ) {
+                            Text(
+                                text = "${index + 1}. ${resultsList[index]}",
+                                modifier = Modifier.padding(12.dp)
+                            )
+                        }
                     }
                 }
             }
         }
     }
 
-    // Ошибка 13: Незакрытые ресурсы
-    override fun onDestroy() {
-        super.onDestroy()
-        // Отсутствует очистка handler
+    private fun startTimer() {
+        isRunning = true
+
+        GlobalScope.launch {
+            val startTime = System.currentTimeMillis()
+            while (isRunning) {
+                val elapsedTime = System.currentTimeMillis() - startTime
+                currentTimeMillis = elapsedTime
+                delay(1)
+            }
+        }
+    }
+
+    private fun stopTimer() {
+        val result = "Время: ${currentTimeMillis / 1000000}.${currentTimeMillis % 1000000} c"
+
+        currentTimeMillis = 0
+
+        resultsList.add(result)
     }
 }
