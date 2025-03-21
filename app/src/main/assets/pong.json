@@ -148,7 +148,7 @@
       {
         "name": "enemy_slowness",
         "type": "integer",
-        "value": 25
+        "value": 85
       },
       {
         "name": "ricochete_modifier",
@@ -207,7 +207,7 @@
         "actions": [
           {
             "log_id": "ricochet_x",
-            "url": "div-action://set_variable?name=ball_velocity_x&value=@{-ball_velocity_x}"
+            "url": "div-action://set_variable?name=ball_velocity_y&value=@{-ball_velocity_y}"
           }
         ]
       },
@@ -232,10 +232,6 @@
           {
             "log_id": "player_score",
             "url": "div-action://set_variable?name=score_player&value=@{score_player + 1}"
-          },
-          {
-            "log_id": "ricochet_y",
-            "url": "div-action://set_variable?name=ball_velocity_y&value=@{-ball_velocity_y}"
           }
         ]
       },
@@ -249,11 +245,7 @@
           },
           {
             "log_id": "enemy_score",
-            "url": "div-action://set_variable?name=score_enemy&value=@{score_enemy + 1}"
-          },
-          {
-            "log_id": "ricochet_y",
-            "url": "div-action://set_variable?name=ball_velocity_y&value=@{-ball_velocity_y}"
+            "url": "div-action://set_variable?name=score_player&value=@{score_player + 1}"
           }
         ]
       },
@@ -313,9 +305,8 @@
           "type": "container",
           "content_alignment_horizontal": "center",
           "height": {
-            "type": "wrap_content"
+            "type": "match_parent"
           },
-          "alignment_vertical": "center",
           "items": [
             {
               "type": "container",
@@ -351,7 +342,7 @@
                   "id": "player_platform",
                   "type": "platform",
                   "margins": {
-                    "top": "@{field_height - platform_height - 5}",
+                    "top": "@{field_height - platform_height - 25}",
                     "left": "@{player_platform_position*(field_width-platform_width)}"
                   }
                 },
@@ -432,7 +423,7 @@
                   "actions": [
                     {
                       "log_id": "start",
-                      "url": "div-action://timer?id=update&action=start"
+                      "url": "div-action://timer?id=update&action=stop"
                     }
                   ]
                 },
@@ -442,7 +433,7 @@
                   "actions": [
                     {
                       "log_id": "stop",
-                      "url": "div-action://timer?id=update&action=stop"
+                      "url": "div-action://timer?id=update&action=start"
                     }
                   ]
                 },
@@ -465,14 +456,6 @@
                     {
                       "log_id": "reset_velocity_y",
                       "url": "div-action://set_variable?name=ball_velocity_y&value=@{abs(ball_velocity_y)}"
-                    },
-                    {
-                      "log_id": "reset_player_score",
-                      "url": "div-action://set_variable?name=score_player&value=0"
-                    },
-                    {
-                      "log_id": "reset_enemy_score",
-                      "url": "div-action://set_variable?name=score_enemy&value=0"
                     }
                   ]
                 }
