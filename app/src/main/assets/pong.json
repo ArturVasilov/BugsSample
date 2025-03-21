@@ -1,0 +1,486 @@
+{
+  "templates": {
+    "platform": {
+      "type": "text",
+      "text": " ",
+      "height": {
+        "type": "fixed",
+        "value": "@{platform_height}"
+      },
+      "width": {
+        "type": "fixed",
+        "value": "@{platform_width}"
+      },
+      "border": {
+        "corner_radius": 8
+      },
+      "background": [
+        {
+          "type": "solid",
+          "color": "#f00"
+        }
+      ]
+    },
+    "ball": {
+      "type": "text",
+      "text": " ",
+      "height": {
+        "type": "fixed",
+        "value": "@{ball_size}"
+      },
+      "width": {
+        "type": "fixed",
+        "value": "@{ball_size}"
+      },
+      "border": {
+        "corner_radius": 8
+      },
+      "background": [
+        {
+          "type": "solid",
+          "color": "#00f"
+        }
+      ]
+    },
+    "button": {
+      "type": "text",
+      "border": {
+        "corner_radius": 8
+      },
+      "width": {
+        "type": "fixed",
+        "value": 64
+      },
+      "text_alignment_horizontal": "center",
+      "background": [
+        {
+          "type": "solid",
+          "color": "#f88"
+        }
+      ],
+      "margins": {
+        "left": 8,
+        "top": 8,
+        "right": 8,
+        "bottom": 8
+      },
+      "paddings": {
+        "left": 8,
+        "top": 8,
+        "right": 8,
+        "bottom": 8
+      }
+    }
+  },
+  "card": {
+    "log_id": "div2_sample_card",
+    "variables": [
+      {
+        "name": "field_width",
+        "type": "integer",
+        "value": 300
+      },
+      {
+        "name": "field_height",
+        "type": "number",
+        "value": 500
+      },
+      {
+        "name": "platform_height",
+        "type": "integer",
+        "value": 16
+      },
+      {
+        "name": "platform_width",
+        "type": "integer",
+        "value": 128
+      },
+      {
+        "name": "update_interval",
+        "type": "integer",
+        "value": 12
+      },
+      {
+        "name": "ball_size",
+        "type": "integer",
+        "value": 16
+      },
+      {
+        "name": "ball_x",
+        "type": "number",
+        "value": 150
+      },
+      {
+        "name": "ball_y",
+        "type": "number",
+        "value": 250
+      },
+      {
+        "name": "ball_velocity_x",
+        "type": "number",
+        "value": 0
+      },
+      {
+        "name": "ball_velocity_y",
+        "type": "number",
+        "value": 300
+      },
+      {
+        "name": "max_velocity_y",
+        "type": "number",
+        "value": 300.0
+      },
+      {
+        "name": "enemy_platform_position",
+        "type": "number",
+        "value": 0.5
+      },
+      {
+        "name": "player_platform_position",
+        "type": "number",
+        "value": 0.5
+      },
+      {
+        "name": "player_platform_position_slider_value",
+        "type": "integer",
+        "value": 50
+      },
+      {
+        "name": "enemy_slowness",
+        "type": "integer",
+        "value": 25
+      },
+      {
+        "name": "ricochete_modifier",
+        "type": "number",
+        "value": 5
+      },
+      {
+        "name": "score_player",
+        "type": "integer",
+        "value": 0
+      },
+      {
+        "name": "score_enemy",
+        "type": "integer",
+        "value": 0
+      }
+    ],
+    "timers": [
+      {
+        "id": "update",
+        "tick_interval": "@{update_interval}",
+        "tick_actions": [
+          {
+            "log_id": "update_ball_x",
+            "url": "div-action://set_variable?name=ball_x&value=@{ball_x+(ball_velocity_x*update_interval/1000)}"
+          },
+          {
+            "log_id": "update_ball_y",
+            "url": "div-action://set_variable?name=ball_y&value=@{ball_y+(ball_velocity_y*update_interval/1000)}"
+          }
+        ]
+      }
+    ],
+    "variable_triggers": [
+      {
+        "mode": "on_variable",
+        "condition": "@{field_width != 300}",
+        "actions": [
+          {
+            "log_id": "set_field_height",
+            "url": "div-action://set_variable?name=field_height&value=@{field_width * 1.3}"
+          },
+          {
+            "log_id": "set_ball_x_position",
+            "url": "div-action://set_variable?name=ball_x&value=@{(field_width - ball_size) / 2}"
+          },
+          {
+            "log_id": "set_ball_y_position",
+            "url": "div-action://set_variable?name=ball_y&value=@{(field_height - ball_size) / 2}"
+          }
+        ]
+      },
+      {
+        "mode": "on_condition",
+        "condition": "@{ball_x < 0}",
+        "actions": [
+          {
+            "log_id": "ricochet_x",
+            "url": "div-action://set_variable?name=ball_velocity_x&value=@{-ball_velocity_x}"
+          }
+        ]
+      },
+      {
+        "mode": "on_condition",
+        "condition": "@{ball_x > (field_width - ball_size)}",
+        "actions": [
+          {
+            "log_id": "ricochet_x",
+            "url": "div-action://set_variable?name=ball_velocity_x&value=@{-ball_velocity_x}"
+          }
+        ]
+      },
+      {
+        "mode": "on_condition",
+        "condition": "@{ball_y < 0 - ball_size}",
+        "actions": [
+          {
+            "log_id": "player_wins",
+            "url": "div-action://timer?id=update&action=stop"
+          },
+          {
+            "log_id": "player_score",
+            "url": "div-action://set_variable?name=score_player&value=@{score_player + 1}"
+          },
+          {
+            "log_id": "ricochet_y",
+            "url": "div-action://set_variable?name=ball_velocity_y&value=@{-ball_velocity_y}"
+          }
+        ]
+      },
+      {
+        "mode": "on_condition",
+        "condition": "@{ball_y > field_height - ball_size}",
+        "actions": [
+          {
+            "log_id": "enemy_wins",
+            "url": "div-action://timer?id=update&action=stop"
+          },
+          {
+            "log_id": "enemy_score",
+            "url": "div-action://set_variable?name=score_enemy&value=@{score_enemy + 1}"
+          },
+          {
+            "log_id": "ricochet_y",
+            "url": "div-action://set_variable?name=ball_velocity_y&value=@{-ball_velocity_y}"
+          }
+        ]
+      },
+      {
+        "mode": "on_condition",
+        "condition": "@{(ball_y > (field_height - platform_height - ball_size)) && ball_velocity_y > 0 && ((player_platform_position * (field_width - platform_width)) <= ball_x) && ((player_platform_position * (field_width - platform_width) + platform_width) >= ball_x)}",
+        "actions": [
+          {
+            "log_id": "player_platform_ricochete_x",
+            "url": "div-action://set_variable?name=ball_velocity_x&value=@{(ball_x - (player_platform_position * (field_width - platform_width)) - (platform_width / 2)) * ricochete_modifier}"
+          },
+          {
+            "log_id": "player_platform_ricochet_y",
+            "url": "div-action://set_variable?name=ball_velocity_y&value=@{-max_velocity_y}"
+          }
+        ]
+      },
+      {
+        "mode": "on_condition",
+        "condition": "@{(ball_y < platform_height) && ball_velocity_y < 0 && ((enemy_platform_position * (field_width - platform_width)) <= ball_x) && ((enemy_platform_position * (field_width - platform_width) + platform_width) >= ball_x)}",
+        "actions": [
+          {
+            "log_id": "player_platform_ricochete_x",
+            "url": "div-action://set_variable?name=ball_velocity_x&value=@{(ball_x - (enemy_platform_position * (field_width - platform_width)) - (platform_width / 2)) * ricochete_modifier}"
+          },
+          {
+            "log_id": "enemy_platform_ricochete",
+            "url": "div-action://set_variable?name=ball_velocity_y&value=@{-ball_velocity_y}"
+          }
+        ]
+      },
+      {
+        "mode": "on_variable",
+        "condition": "@{ball_x == ball_x}",
+        "actions": [
+          {
+            "log_id": "move_enemy_platform",
+            "url": "div-action://set_variable?name=enemy_platform_position&value=@{enemy_platform_position + ((ball_x / field_width) - enemy_platform_position) / enemy_slowness}"
+          }
+        ]
+      },
+      {
+        "mode": "on_variable",
+        "condition": "@{player_platform_position_slider_value == player_platform_position_slider_value}",
+        "actions": [
+          {
+            "log_id": "track_slider",
+            "url": "div-action://set_variable?name=player_platform_position&value=@{toNumber(player_platform_position_slider_value)/100}"
+          }
+        ]
+      }
+    ],
+    "states": [
+      {
+        "state_id": 0,
+        "div": {
+          "type": "container",
+          "content_alignment_horizontal": "center",
+          "height": {
+            "type": "wrap_content"
+          },
+          "alignment_vertical": "center",
+          "items": [
+            {
+              "type": "container",
+              "orientation": "overlap",
+              "width": {
+                "type": "match_parent"
+              },
+              "layout_provider": {
+                "width_variable_name": "field_width"
+              },
+              "height": {
+                "type": "fixed",
+                "value": "@{field_height}"
+              },
+              "items": [
+                {
+                  "type": "text",
+                  "text": "@{score_player} - @{score_enemy}",
+                  "font_size": 80,
+                  "text_color": "#FFF",
+                  "text_alignment_horizontal": "center",
+                  "alignment_vertical": "center"
+                },
+                {
+                  "id": "enemy_platform",
+                  "type": "platform",
+                  "margins": {
+                    "left": "@{enemy_platform_position*(field_width-platform_width)}",
+                    "top": 5
+                  }
+                },
+                {
+                  "id": "player_platform",
+                  "type": "platform",
+                  "margins": {
+                    "top": "@{field_height - platform_height - 5}",
+                    "left": "@{player_platform_position*(field_width-platform_width)}"
+                  }
+                },
+                {
+                  "id": "ball",
+                  "type": "ball",
+                  "margins": {
+                    "top": "@{ball_y}",
+                    "left": "@{ball_x}"
+                  }
+                }
+              ],
+              "background": [
+                {
+                  "type": "solid",
+                  "color": "#8f8"
+                }
+              ]
+            },
+            {
+              "type": "slider",
+              "min_value": 0,
+              "max_value": 100,
+              "thumb_value_variable": "player_platform_position_slider_value",
+              "accessibility": {
+                "description": "control"
+              },
+              "width": {
+                "type": "fixed",
+                "value": "@{field_width}"
+              },
+              "margins": {
+                "top": 10
+              },
+              "thumb_style": {
+                "type": "shape_drawable",
+                "color": "#0ff",
+                "shape": {
+                  "type": "rounded_rectangle",
+                  "item_height": {
+                    "type": "fixed",
+                    "value": 32
+                  },
+                  "item_width": {
+                    "type": "fixed",
+                    "value": "@{platform_width}"
+                  }
+                }
+              },
+              "track_active_style": {
+                "type": "shape_drawable",
+                "color": "#0000",
+                "shape": {
+                  "type": "rounded_rectangle"
+                }
+              },
+              "track_inactive_style": {
+                "type": "shape_drawable",
+                "color": "#0000",
+                "shape": {
+                  "type": "rounded_rectangle"
+                }
+              }
+            },
+            {
+              "type": "container",
+              "orientation": "horizontal",
+              "content_alignment_horizontal": "center",
+              "alignment_vertical": "bottom",
+              "content_alignment_vertical": "bottom",
+              "margins": {
+                "bottom": 10
+              },
+              "items": [
+                {
+                  "type": "button",
+                  "text": "Start",
+                  "actions": [
+                    {
+                      "log_id": "start",
+                      "url": "div-action://timer?id=update&action=start"
+                    }
+                  ]
+                },
+                {
+                  "type": "button",
+                  "text": "Stop",
+                  "actions": [
+                    {
+                      "log_id": "stop",
+                      "url": "div-action://timer?id=update&action=stop"
+                    }
+                  ]
+                },
+                {
+                  "type": "button",
+                  "text": "Reset",
+                  "actions": [
+                    {
+                      "log_id": "reset_ball_x",
+                      "url": "div-action://set_variable?name=ball_x&value=@{(field_width - ball_size) / 2}"
+                    },
+                    {
+                      "log_id": "reset_ball_y",
+                      "url": "div-action://set_variable?name=ball_y&value=@{(field_height - ball_size) / 2}"
+                    },
+                    {
+                      "log_id": "reset_velocity_x",
+                      "url": "div-action://set_variable?name=ball_velocity_x&value=0"
+                    },
+                    {
+                      "log_id": "reset_velocity_y",
+                      "url": "div-action://set_variable?name=ball_velocity_y&value=@{abs(ball_velocity_y)}"
+                    },
+                    {
+                      "log_id": "reset_player_score",
+                      "url": "div-action://set_variable?name=score_player&value=0"
+                    },
+                    {
+                      "log_id": "reset_enemy_score",
+                      "url": "div-action://set_variable?name=score_enemy&value=0"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
