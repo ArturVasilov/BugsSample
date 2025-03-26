@@ -52,7 +52,7 @@ fun StartScreen(modifier: Modifier = Modifier) {
         TaskButton("Задание 1 – Таймер", Task1Activity::class.java)
         TaskButton("Задание 2 – Canvas", Task2Activity::class.java)
         TaskButton("Задание 3 – TODO", Task3Activity::class.java)
-        TaskButton("Задание 4 – TODO", Task4Activity::class.java)
+        TaskButton("Задание 4 – Дела", Task4Activity::class.java)
         TaskButton("Задание 5 – DivKit", Task5Activity::class.java)
     }
 }
