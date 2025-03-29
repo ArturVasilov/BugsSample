@@ -54,21 +54,19 @@ class Task2Activity : ComponentActivity() {
         LaunchedEffect(Unit) {
             while(true) {
                 timeMillis = System.currentTimeMillis()
-                delay(16) // ~60 FPS
+                delay(16)
             }
         }
 
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0x001A237E)) // Темно-синий фон (небо)
+                .background(Color(0x001A237E))
         ) {
-            // Основной холст для рисования всей композиции
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val width = size.width
                 val height = size.height
 
-                // Рисуем звезды (маленькие белые точки)
                 repeat(80) {
                     drawCircle(
                         color = Color.White.copy(alpha = 0.7f + (Math.random() * 0.3).toFloat()),
@@ -80,14 +78,12 @@ class Task2Activity : ComponentActivity() {
                     )
                 }
 
-                // Солнце (оранжевый круг)
                 drawCircle(
                     color = Color(0xFFFFA000),
                     radius = width * 0.12f,
                     center = Offset(width * 0.8f, height * 0.2f)
                 )
 
-                // Солнечные лучи
                 for (i in 0 until 12) {
                     rotate(degrees = i * 35f, pivot = Offset(width * 0.8f, height * 0.2f)) {
                         drawRect(
@@ -98,8 +94,6 @@ class Task2Activity : ComponentActivity() {
                     }
                 }
 
-                // Горы (треугольники)
-                // Первая гора
                 val mountainPath1 = Path().apply {
                     moveTo(0f, height * 0.7f)
                     lineTo(width * 0.35f, height * 0.4f)
@@ -108,10 +102,9 @@ class Task2Activity : ComponentActivity() {
                 }
                 drawPath(
                     path = mountainPath1,
-                    color = Color(0xFF5D4037) // Коричневый
+                    color = Color(0xFF5D4037)
                 )
 
-                // Вторая гора
                 val mountainPath2 = Path().apply {
                     moveTo(width * 0.3f, height * 0.7f)
                     lineTo(width * 0.65f, height * 0.35f)
@@ -120,10 +113,9 @@ class Task2Activity : ComponentActivity() {
                 }
                 drawPath(
                     path = mountainPath2,
-                    color = Color(0xFF8D6E63) // Светло-коричневый
+                    color = Color(0xFF8D6E63)
                 )
 
-                // Снежные шапки на горах
                 val snowPath1 = Path().apply {
                     moveTo(width * 0.55f, height * 0.4f)
                     lineTo(width * 0.3f, height * 0.45f)
@@ -146,17 +138,14 @@ class Task2Activity : ComponentActivity() {
                     color = Color.White
                 )
 
-                // Трава / Земля
                 drawRect(
-                    color = Color(0xFF2E7D32), // Темно-зеленый
+                    color = Color(0xFF2E7D32),
                     topLeft = Offset(0f, height * 0.7f),
                     size = Size(width, height * 0.3f)
                 )
 
-                // Деревья
-                // Дерево 1
                 drawRect(
-                    color = Color(0xFF4E342E), // Темно-коричневый (ствол)
+                    color = Color(0xFF4E342E),
                     topLeft = Offset(width * 0.15f, height * 0.6f),
                     size = Size(width * 0.02f, height * 0.1f)
                 )
@@ -169,12 +158,11 @@ class Task2Activity : ComponentActivity() {
                 }
                 drawPath(
                     path = treeTop1,
-                    color = Color(0xFF388E3C) // Зеленый
+                    color = Color(0xFF388E3C)
                 )
 
-                // Дерево 2
                 drawRect(
-                    color = Color(0xFF4E342E), // Темно-коричневый (ствол)
+                    color = Color(0xFF4E342E),
                     topLeft = Offset(width * 0.85f, height * 0.6f),
                     size = Size(width * 0.02f, height * 0.1f)
                 )
@@ -187,25 +175,21 @@ class Task2Activity : ComponentActivity() {
                 }
                 drawPath(
                     path = treeTop2,
-                    color = Color(0xFF2E7D32) // Темно-зеленый
+                    color = Color(0xFF2E7D32)
                 )
 
-                // Озеро
                 drawOval(
-                    color = Color(0xFF2E7D32), // Синий
+                    color = Color(0xFF2E7D32),
                     topLeft = Offset(width * 0.25f, height * 0.75f),
                     size = Size(width * 0.5f, height * 0.15f)
                 )
 
-                // Отражение на озере
                 drawOval(
-                    color = Color(0xFFFFB74D).copy(alpha = 0.3f), // Полупрозрачный оранжевый
+                    color = Color(0xFFFFB74D).copy(alpha = 0.3f),
                     topLeft = Offset(width * 0.45f, height * 0.77f),
                     size = Size(width * 0.1f, height * 0.05f)
                 )
 
-                // Облака
-                // Облако 1
                 translate(left = width * 0.2f, top = height * 0.15f) {
                     drawCircle(
                         color = Color.White.copy(alpha = 0.8f),
@@ -224,7 +208,6 @@ class Task2Activity : ComponentActivity() {
                     )
                 }
 
-                // Облако 2
                 translate(left = width * 0.5f, top = height * 0.1f) {
                     drawCircle(
                         color = Color.White.copy(alpha = 0.7f),
@@ -251,7 +234,7 @@ class Task2Activity : ComponentActivity() {
                 }
                 drawPath(
                     path = boatPath,
-                    color = Color(0xFF795548) // Коричневый
+                    color = Color(0xFF795548)
                 )
 
                 val sailPath = Path().apply {
